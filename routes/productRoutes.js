@@ -7,17 +7,13 @@ const router = express.Router();
 // ====================== Middleware ======================
 function auth(req, res, next) {
   const authHeader = req.headers["authorization"];
-  console.log("Auth header:", req.headers["authorization"]);
   if (!authHeader) return res.status(401).json({ error: "No token" });
 
-  const token = authHeader.split(" ")[1]; // ⚡ remove "Bearer "
-  console.log("Token:", token);
+  const token = authHeader.split(" ")[1]; // remove "Bearer "
   if (!token) return res.status(401).json({ error: "Token missing" });
 
-  const JWT_SECRET = process.env.JWT_SECRET || "secretkey";
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    console.log("JWT verify error:", err);
-
+  const JWT_SECRET_TOKEN = process.env.JWT_SECRET || "secretkey";
+  jwt.verify(token, JWT_SECRET_TOKEN, (err, user) => {
     if (err) return res.status(400).json({ error: "Invalid token" });
     req.user = user; // decoded token { id, role }
     next();
@@ -48,14 +44,29 @@ const upload = multer({ storage });
 // ➤ Add product (Admin only)
 router.post("/add", auth, isAdmin, upload.single("image"), async (req, res) => {
   try {
-    const { medicineName, description, price } = req.body;
+    const {
+      medicineName,
+      description,
+      price,
+      dosageForm,
+      uses,
+      manufacturer,
+      expiryDate,
+      drugNumber
+    } = req.body;
+
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
     const newProduct = new Product({
       medicineName,
       description,
       price,
-      image: imagePath
+      image: imagePath,
+      dosageForm,
+      uses,
+      manufacturer,
+      expiryDate,
+      drugNumber
     });
 
     await newProduct.save();
@@ -79,8 +90,27 @@ router.get("/", async (req, res) => {
 // ➤ Update product (Admin only)
 router.put("/:id", auth, isAdmin, upload.single("image"), async (req, res) => {
   try {
-    const { medicineName, description, price } = req.body;
-    let updateData = { medicineName, description, price };
+    const {
+      medicineName,
+      description,
+      price,
+      dosageForm,
+      uses,
+      manufacturer,
+      expiryDate,
+      drugNumber
+    } = req.body;
+
+    let updateData = {
+      medicineName,
+      description,
+      price,
+      dosageForm,
+      uses,
+      manufacturer,
+      expiryDate,
+      drugNumber
+    };
 
     if (req.file) {
       updateData.image = `/uploads/${req.file.filename}`;

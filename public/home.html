@@ -27,17 +27,26 @@
   <div id="popupForm" class="popup-form">
     <div class="form-container">
       <h3>Add Medicine</h3>
-      <input type="text" id="medicineName" placeholder="Medicine Name">
-      <input type="text" id="description" placeholder="Description">
-      <input type="number" id="price" placeholder="Price">
+
+      <!-- Existing fields -->
+      <input type="text" id="medicineName" placeholder="Medicine Name" required>
+      <input type="text" id="description" placeholder="Description" required>
+      <input type="number" id="price" placeholder="Price" required>
       <input type="file" id="image" accept="image/*" required />
+
+      <!-- ✅ New fields added -->
+      <input type="text" id="dosageForm" placeholder="Dosage Form (Tablet, Liquid, etc.)" required>
+      <input type="text" id="uses" placeholder="Uses (e.g., Pain relief, Fever)" required>
+      <input type="text" id="manufacturer" placeholder="Manufacturer Name" required>
+      <input type="date" id="expiryDate" placeholder="Expiry Date" required>
+      <input type="text" id="drugNumber" placeholder="Drug Number / Code" required>
+
       <div class="form-buttons">
         <button class="add-btn" onclick="addProduct()">Add Product</button>
 
         <!-- Delete and Cancel Buttons -->
         <button id="deleteBtn" style="background-color: #d9534f; display:none;">Delete</button>
-
-        <button  onclick="closeForm()">Cancel</button>
+        <button onclick="closeForm()">Cancel</button>
       </div>
     </div>
   </div>
@@ -45,7 +54,16 @@
   <!-- Products Section -->
   <section class="products-section">
     <h2>Available Medicines</h2>
+
+    <!-- Loading indicator (hidden by default) -->
+    <div id="loadingIndicator" style="display:none; text-align:center;">Loading medicines...</div>
+
     <div class="products" id="productList"></div>
+
+    <!-- Error message for invalid inputs or no results -->
+    <div id="errorMessage" style="display:none; color:red; text-align:center; margin-top:10px;">
+      Medicine not found or invalid input!
+    </div>
   </section>
 
   <!-- Footer -->
@@ -60,8 +78,10 @@
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const role = localStorage.getItem("role");
+
+      // Hide Add Product for normal users
       if (role !== "admin") {
-        document.getElementById("addProductBtn").style.display = "none"; // Hide add button for users
+        document.getElementById("addProductBtn").style.display = "none";
       }
     });
 

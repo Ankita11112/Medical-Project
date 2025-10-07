@@ -83,6 +83,13 @@ async function login() {
 // Popup Form Controls
 // ====================================================
 function openForm() {
+  const role = localStorage.getItem("role");
+
+  if(role !== "admin") {
+    alert("Only admins can add maedicines!");
+    return;
+  }
+
   document.getElementById("popupForm").style.display = "block";
   document.getElementById("deleteBtn").style.display = "none"; // hide delete by default
 }
@@ -90,11 +97,12 @@ function openForm() {
 function closeForm() {
   document.getElementById("popupForm").style.display = "none";
 
-  // Reset fields
-  document.getElementById("medicineName").value = "";
-  document.getElementById("description").value = "";
-  document.getElementById("price").value = "";
-  document.getElementById("image").value = "";
+  // Reset all fields
+  ["medicineName", "description", "price", "image", "dosageForm", "uses", "manufacturer", "expiryDate", "drugNumber"]
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
 
   // Reset heading & button text
   document.getElementById("popupForm").removeAttribute("data-id");
@@ -115,9 +123,14 @@ async function addProduct() {
   const medicineName = document.getElementById("medicineName")?.value.trim();
   const description = document.getElementById("description")?.value.trim();
   const price = document.getElementById("price")?.value.trim();
+  const dosageForm = document.getElementById("dosageForm")?.value.trim();
+  const uses = document.getElementById("uses")?.value.trim();
+  const manufacturer = document.getElementById("manufacturer")?.value.trim();
+  const expiryDate = document.getElementById("expiryDate")?.value;
+  const drugNumber = document.getElementById("drugNumber")?.value.trim();
   const imageFile = document.getElementById("image")?.files[0];
 
-  if (!medicineName || !description || !price || !imageFile) {
+  if (!medicineName || !description || !price || !imageFile || !dosageForm || !uses || !manufacturer || !expiryDate || !drugNumber) {
     alert("Please fill all product fields");
     return;
   }
@@ -126,6 +139,11 @@ async function addProduct() {
   formData.append("medicineName", medicineName);
   formData.append("description", description);
   formData.append("price", price);
+  formData.append("dosageForm", dosageForm);
+  formData.append("uses", uses);
+  formData.append("manufacturer", manufacturer);
+  formData.append("expiryDate", expiryDate);
+  formData.append("drugNumber", drugNumber);
   formData.append("image", imageFile);
 
   try {
@@ -153,10 +171,15 @@ async function updateProduct() {
   const medicineName = document.getElementById("medicineName")?.value.trim();
   const description = document.getElementById("description")?.value.trim();
   const price = document.getElementById("price")?.value.trim();
+  const dosageForm = document.getElementById("dosageForm")?.value.trim();
+  const uses = document.getElementById("uses")?.value.trim();
+  const manufacturer = document.getElementById("manufacturer")?.value.trim();
+  const expiryDate = document.getElementById("expiryDate")?.value;
+  const drugNumber = document.getElementById("drugNumber")?.value.trim();
   const imageFile = document.getElementById("image")?.files[0];
 
   if (!medicineName || !description || !price) {
-    alert("Please fill all fields");
+    alert("Please fill all required fields");
     return;
   }
 
@@ -164,6 +187,11 @@ async function updateProduct() {
   formData.append("medicineName", medicineName);
   formData.append("description", description);
   formData.append("price", price);
+  formData.append("dosageForm", dosageForm);
+  formData.append("uses", uses);
+  formData.append("manufacturer", manufacturer);
+  formData.append("expiryDate", expiryDate);
+  formData.append("drugNumber", drugNumber);
   if (imageFile) formData.append("image", imageFile);
 
   try {
@@ -213,13 +241,17 @@ function openUpdateForm(product) {
   document.getElementById("deleteBtn").style.display = "inline-block";
 
   // Prefill form
-  document.getElementById("medicineName").value = product.medicineName;
-  document.getElementById("description").value = product.description;
-  document.getElementById("price").value = product.price;
+  document.getElementById("medicineName").value = product.medicineName || "";
+  document.getElementById("description").value = product.description || "";
+  document.getElementById("price").value = product.price || "";
+  document.getElementById("dosageForm").value = product.dosageForm || "";
+  document.getElementById("uses").value = product.uses || "";
+  document.getElementById("manufacturer").value = product.manufacturer || "";
+  document.getElementById("expiryDate").value = product.expiryDate ? product.expiryDate.split("T")[0] : "";
+  document.getElementById("drugNumber").value = product.drugNumber || "";
 
   document.getElementById("popupForm").setAttribute("data-id", product._id);
 
-  // Update UI
   document.querySelector("#popupForm h3").textContent = "Update Medicine";
   const addBtn = document.querySelector("#popupForm button.add-btn");
   if (addBtn) {
@@ -227,7 +259,6 @@ function openUpdateForm(product) {
     addBtn.onclick = updateProduct;
   }
 
-  // Set delete button dynamically
   document.getElementById("deleteBtn").setAttribute("onclick", `deleteProduct('${product._id}')`);
 }
 
@@ -237,46 +268,51 @@ function openUpdateForm(product) {
 async function loadProducts() {
   const list = document.getElementById("productList");
   const role = localStorage.getItem("role");
-  const popupForm = document.getElementById("popupForm");
+  const loading = document.getElementById("loadingIndicator");
+  const errorMsg = document.getElementById("errorMessage");
 
-  // Hide add button & popup if user is not admin
-  if (role !== "admin") {
-    if (popupForm) popupForm.style.display = "none";
-  }
   if (!list) return;
+  if (loading) loading.style.display = "block";
+  if (errorMsg) errorMsg.style.display = "none";
 
   try {
     const products = await fetchJSON(`${API_URL}/api/products`);
-    const role = localStorage.getItem("role");
+    if (loading) loading.style.display = "none";
 
-    list.innerHTML = ""; // Clear
+    list.innerHTML = "";
+    if (!products || products.length === 0) {
+      if (errorMsg) errorMsg.style.display = "block";
+      return;
+    }
+
     const fragment = document.createDocumentFragment();
 
-products.forEach(p => {
+    products.forEach(p => {
       const card = document.createElement("div");
       card.classList.add("card");
 
       let buttonHTML = "";
       if (role === "admin") {
-        // Admin: show Update + Delete on same line
         buttonHTML = `
           <div style="display:flex; gap:8px; justify-content:center; margin-top:10px;">
             <button onclick='openUpdateForm(${JSON.stringify(p)})'>Update</button>
             <button onclick="deleteProduct('${p._id}')">Delete</button>
-          </div>
-        `;
+          </div>`;
       } else {
-        // User: show Buy Now
         buttonHTML = `
           <div style="text-align:center; margin-top:10px;">
             <button onclick="buyProduct('${p._id}')">Buy Now</button>
-          </div>
-        `;
+          </div>`;
       }
 
       card.innerHTML = `
         <img src="${p.image}" width="100%">
         <h4>${p.medicineName}</h4>
+        <p><b>Drug Code:</b> ${p.drugNumber || "N/A"}</p>
+        <p><b>Dosage Form:</b> ${p.dosageForm || "N/A"}</p>
+        <p><b>Uses:</b> ${p.uses || "N/A"}</p>
+        <p><b>Manufacturer:</b> ${p.manufacturer || "N/A"}</p>
+        <p><b>Expiry:</b> ${p.expiryDate ? p.expiryDate.split("T")[0] : "N/A"}</p>
         <p>${p.description}</p>
         <p><b>₹${p.price}</b></p>
         ${buttonHTML}
@@ -288,7 +324,8 @@ products.forEach(p => {
     list.appendChild(fragment);
   } catch (err) {
     console.error("Failed to load products:", err);
-    alert("Failed to load products. See console.");
+    if (loading) loading.style.display = "none";
+    if (errorMsg) errorMsg.style.display = "block";
   }
 }
 
@@ -296,7 +333,7 @@ products.forEach(p => {
 // Buy Product (Placeholder)
 // ====================================================
 function buyProduct(productId) {
-  alert(`Buying product ID: ${productId}`); j
+  alert(`Buying product ID: ${productId}`);
 }
 
 // ====================================================
@@ -305,5 +342,11 @@ function buyProduct(productId) {
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("productList")) {
     loadProducts();
+  }
+    // 🚫 Hide popup form completely for non-admin users
+  const role = localStorage.getItem("role");
+  if (role !== "admin") {
+    const popupForm = document.getElementById("popupForm");
+    if (popupForm) popupForm.style.display = "none";
   }
 });
