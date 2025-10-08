@@ -1,5 +1,5 @@
-const API_URL = "http://localhost:5000"; // ✅ backend base URL
-
+// const API_URL = "http://localhost:5000"; // ✅ backend base URL
+const API_URL = "https://medical-project-1pwz.onrender.com";
 // ====================================================
 // Common Fetch Utility
 // ====================================================
