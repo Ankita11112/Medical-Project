@@ -55,7 +55,7 @@ router.post("/add", auth, isAdmin, upload.single("image"), async (req, res) => {
       drugNumber
     } = req.body;
 
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
+    const imagePath = req.file ? `Medical-Project/uploads/${req.file.filename}` : "";
 
     const newProduct = new Product({
       medicineName,
