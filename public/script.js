@@ -306,7 +306,7 @@ async function loadProducts() {
       }
 
       card.innerHTML = `
-        <img src="${p.image || "https://imgs.search.brave.com/_BcaBM5C2c42r7KE0RSaGYpHWUVbwm3N-0VBFBepuf0/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/Z3N0YXRpYy5jb20v/Zm1kL2ltYWdlcy9t/YXBfYXZhdGFycy9m/bWRfbGFuZGluZ19w/YWdlX21hcC5zdmc"}" width="100%">
+        <img src="${p.image === "" ? "https://imgs.search.brave.com/_BcaBM5C2c42r7KE0RSaGYpHWUVbwm3N-0VBFBepuf0/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly93d3cu/Z3N0YXRpYy5jb20v/Zm1kL2ltYWdlcy9t/YXBfYXZhdGFycy9m/bWRfbGFuZGluZ19w/YWdlX21hcC5zdmc" : p.image}" width="100%">
         <h4>${p.medicineName}</h4>
         <p><b>Drug Code:</b> ${p.drugNumber || "N/A"}</p>
         <p><b>Dosage Form:</b> ${p.dosageForm || "N/A"}</p>
