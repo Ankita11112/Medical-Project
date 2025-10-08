@@ -70,7 +70,7 @@ async function login() {
     if (data.token) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", role);
-      window.location.href = `${API_URL}/Medical-Project/public/home.html`;
+      window.location.href = `Medical-Project/public/home.html`;
     } else {
       alert(data.error || "Login failed");
     }
