@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline'">
   <title>Login</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="./public/style.css">
 </head>
+
 <body>
   <div class="login-container">
     <div class="login-box">
@@ -14,7 +16,7 @@
       <form id="loginForm">
         <input type="text" id="loginUser" placeholder="Username" required>
         <input type="password" id="loginPass" placeholder="Password" required>
-        
+
         <select id="loginRole" required>
           <option value="">Select Role</option>
           <option value="user">User</option>
@@ -23,10 +25,10 @@
 
         <button type="button" onclick="login()">Login</button>
       </form>
-      <p>Don't have an account? <a href="signup.html">Signup</a></p>
+      <p>Don't have an account? <a href="./public/signup.html">Signup</a></p>
     </div>
   </div>
-  <script src="script.js"></script>
+  <script src="./public/script.js"></script>
 </body>
-</html>
 
+</html>
