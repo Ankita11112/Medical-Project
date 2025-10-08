@@ -70,7 +70,7 @@ async function login() {
     if (data.token) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", role);
-      window.location.href = `${API_URL}/public/home.html`;
+      window.location.href = `${API_URL}/Medical-Project/public/home.html`;
     } else {
       alert(data.error || "Login failed");
     }
@@ -85,7 +85,7 @@ async function login() {
 function openForm() {
   const role = localStorage.getItem("role");
 
-  if(role !== "admin") {
+  if (role !== "admin") {
     alert("Only admins can add maedicines!");
     return;
   }
@@ -343,7 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("productList")) {
     loadProducts();
   }
-    // 🚫 Hide popup form completely for non-admin users
+  // 🚫 Hide popup form completely for non-admin users
   const role = localStorage.getItem("role");
   if (role !== "admin") {
     const popupForm = document.getElementById("popupForm");
