@@ -41,7 +41,7 @@ async function signup() {
     });
 
     alert(data.message || "Signup successful");
-    window.location.href = "index.html";
+    window.location.href = "../index.html";
   } catch (err) {
     alert("Signup failed. See console for details.");
   }
